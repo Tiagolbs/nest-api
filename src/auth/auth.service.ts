@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+	ForbiddenException,
+	Injectable,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { JwtService } from '@nestjs/jwt';
 import { UserRegisterDto } from './dto/user-register.dto';
@@ -6,16 +10,28 @@ import { UserLoginDto } from './dto/user-login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { UserDto } from './dto/user.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private usersRepository: UsersRepository,
 		private jwtService: JwtService,
+		private mailerService: MailerService,
 	) {}
 
 	async signUp(userRegisterDto: UserRegisterDto): Promise<void> {
-		return this.usersRepository.createUser(userRegisterDto);
+		await this.usersRepository.createUser(userRegisterDto);
+		const mail = {
+			to: userRegisterDto.email,
+			from: 'jorgeematheus@email.com',
+			subject: 'Email de confirmação',
+			template: 'email-confirmation',
+			context: {
+				token: 'asdqwdqwwq',
+			},
+		};
+		await this.mailerService.sendMail(mail);
 	}
 
 	async signIn(
@@ -25,6 +41,9 @@ export class AuthService {
 		const user = await this.usersRepository.findOneBy({ email });
 
 		if (user && (await bcrypt.compare(password, user.password))) {
+			if (!user.isEmailConfirmed) {
+				throw new ForbiddenException('Email not verified');
+			}
 			const payload: JwtPayload = { email };
 			const accessToken: string = await this.jwtService.sign(payload);
 			const userDto: UserDto = {
