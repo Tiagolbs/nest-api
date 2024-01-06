@@ -1,6 +1,8 @@
 import {
 	ForbiddenException,
 	HttpCode,
+	HttpException,
+	HttpStatus,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
@@ -60,15 +62,19 @@ export class AuthService {
 		throw new UnauthorizedException();
 	}
 
-	async verifyEmail(token: string): Promise<any> {
+	async verifyEmail(token: string): Promise<object> {
 		const decodedToken = await this.jwtService.decode(token);
 		const { email } = decodedToken;
 		const user = await this.usersRepository.findOneBy({ email });
 		if (user) {
 			user.isEmailConfirmed = true;
-			return HttpCode(200);
+			await this.usersRepository.save(user);
+			return {
+				statusCode: HttpStatus.OK,
+				message: 'Success',
+			};
 		} else {
-			return HttpCode(404);
+			throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
 		}
 	}
 }
