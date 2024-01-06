@@ -1,5 +1,6 @@
 import {
 	ForbiddenException,
+	HttpCode,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
@@ -22,13 +23,15 @@ export class AuthService {
 
 	async signUp(userRegisterDto: UserRegisterDto): Promise<void> {
 		await this.usersRepository.createUser(userRegisterDto);
+		const payload: JwtPayload = { email: userRegisterDto.email };
+		const confirmToken: string = await this.jwtService.sign(payload);
 		const mail = {
 			to: userRegisterDto.email,
 			from: 'jorgeematheus@email.com',
 			subject: 'Email de confirmação',
 			template: 'email-confirmation',
 			context: {
-				token: 'asdqwdqwwq',
+				token: confirmToken,
 			},
 		};
 		await this.mailerService.sendMail(mail);
@@ -55,5 +58,17 @@ export class AuthService {
 		}
 
 		throw new UnauthorizedException();
+	}
+
+	async verifyEmail(token: string): Promise<any> {
+		const decodedToken = await this.jwtService.decode(token);
+		const { email } = decodedToken;
+		const user = await this.usersRepository.findOneBy({ email });
+		if (user) {
+			user.isEmailConfirmed = true;
+			return HttpCode(200);
+		} else {
+			return HttpCode(404);
+		}
 	}
 }

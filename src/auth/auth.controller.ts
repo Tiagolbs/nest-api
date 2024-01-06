@@ -6,7 +6,7 @@ import { UserDto } from './dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
-	constructor(private authService: AuthService) {}
+	constructor(private authService: AuthService) { }
 
 	@Post('/signup')
 	signUp(@Body() userRegisterDto: UserRegisterDto): Promise<void> {
@@ -18,5 +18,10 @@ export class AuthController {
 		@Body() userLoginDto: UserLoginDto,
 	): Promise<{ accessToken: string; user: UserDto }> {
 		return this.authService.signIn(userLoginDto);
+	}
+
+	@Post('/verifyemail')
+	verifyEmail(@Body() token: string): Promise<any> {
+		return this.authService.verifyEmail(token);
 	}
 }
