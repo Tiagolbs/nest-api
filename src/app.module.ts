@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { configValidationSchema } from './config.schema';
+import { AuthModule } from './auth/auth.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { mailerConfig } from './configs/mailer.config';
 
 @Module({
 	imports: [
@@ -31,6 +34,13 @@ import { configValidationSchema } from './config.schema';
 					database: configService.get('DB_DATABASE'),
 				};
 			},
+		}),
+		AuthModule,
+		MailerModule.forRootAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: async (configService: ConfigService) =>
+				await mailerConfig(configService),
 		}),
 	],
 	controllers: [],
