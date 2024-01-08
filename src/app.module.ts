@@ -5,6 +5,7 @@ import { configValidationSchema } from './config.schema';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailerConfig } from './configs/mailer.config';
+import { EmailModule } from './email/email.module';
 
 @Module({
 	imports: [
@@ -35,13 +36,14 @@ import { mailerConfig } from './configs/mailer.config';
 				};
 			},
 		}),
-		AuthModule,
 		MailerModule.forRootAsync({
 			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: async (configService: ConfigService) =>
 				await mailerConfig(configService),
 		}),
+		AuthModule,
+		EmailModule,
 	],
 	controllers: [],
 	providers: [],
