@@ -1,8 +1,5 @@
 import {
 	ForbiddenException,
-	HttpCode,
-	HttpException,
-	HttpStatus,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
@@ -13,30 +10,19 @@ import { UserLoginDto } from './dto/user-login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { UserDto } from './dto/user.dto';
-import { MailerService } from '@nestjs-modules/mailer';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private usersRepository: UsersRepository,
 		private jwtService: JwtService,
-		private mailerService: MailerService,
+		private emailService: EmailService,
 	) {}
 
 	async signUp(userRegisterDto: UserRegisterDto): Promise<void> {
 		await this.usersRepository.createUser(userRegisterDto);
-		const payload: JwtPayload = { email: userRegisterDto.email };
-		const confirmToken: string = await this.jwtService.sign(payload);
-		const mail = {
-			to: userRegisterDto.email,
-			from: 'jorgeematheus@email.com',
-			subject: 'Email de confirmação',
-			template: 'email-confirmation',
-			context: {
-				token: confirmToken,
-			},
-		};
-		await this.mailerService.sendMail(mail);
+		await this.emailService.sendConfirmationEmail(userRegisterDto.email);
 	}
 
 	async signIn(
@@ -49,7 +35,7 @@ export class AuthService {
 			if (!user.isEmailConfirmed) {
 				throw new ForbiddenException('Email not verified');
 			}
-			const payload: JwtPayload = { email };
+			const payload: JwtPayload = { email, action: 'signIn' };
 			const accessToken: string = await this.jwtService.sign(payload);
 			const userDto: UserDto = {
 				id: user.id,
@@ -60,21 +46,5 @@ export class AuthService {
 		}
 
 		throw new UnauthorizedException();
-	}
-
-	async verifyEmail(token: string): Promise<object> {
-		const decodedToken = await this.jwtService.decode(token);
-		const { email } = decodedToken;
-		const user = await this.usersRepository.findOneBy({ email });
-		if (user) {
-			user.isEmailConfirmed = true;
-			await this.usersRepository.save(user);
-			return {
-				statusCode: HttpStatus.OK,
-				message: 'Success',
-			};
-		} else {
-			throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-		}
 	}
 }
