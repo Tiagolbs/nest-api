@@ -37,4 +37,22 @@ export class UsersRepository extends Repository<User> {
 			}
 		}
 	}
+
+	async updateUser(
+		id: number,
+		userRegisterDto: UserRegisterDto,
+	): Promise<void> {
+		try {
+			const user = await this.findOneBy({ id });
+			const password: string = userRegisterDto.password;
+			if (password) {
+				const salt = await bcrypt.genSalt();
+				const hashedPassword = await bcrypt.hash(password, salt);
+				user.password = hashedPassword;
+			}
+			this.save(user);
+		} catch (error) {
+			throw new InternalServerErrorException();
+		}
+	}
 }

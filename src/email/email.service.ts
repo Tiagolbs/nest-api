@@ -77,4 +77,35 @@ export class EmailService {
 			throw new HttpException(error.message, error.status);
 		}
 	}
+
+	async sendResetPasswordEmail(email: string): Promise<object> {
+		try {
+			const user = await this.usersRepository.findOneBy({ email });
+			if (user) {
+				const payload: JwtPayload = {
+					email: email,
+					action: 'resetPassword',
+				};
+				const verifyEmailToken: string = this.jwtService.sign(payload);
+				const mail = {
+					to: email,
+					from: 'teste@email.com',
+					subject: 'Esqueci minha senha',
+					template: 'reset-password',
+					context: {
+						token: verifyEmailToken,
+					},
+				};
+				await this.mailerService.sendMail(mail);
+				return {
+					statusCode: HttpStatus.OK,
+					message: 'Success',
+				};
+			}
+			throw new NotFoundException('User not found');
+		} catch (error) {
+			throw new HttpException(error.message, error.status);
+		}
+	}
+
 }

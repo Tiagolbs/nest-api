@@ -19,4 +19,12 @@ export class AuthController {
 	): Promise<{ accessToken: string; user: UserDto }> {
 		return this.authService.signIn(userLoginDto);
 	}
+
+	@Post('/resetpassword')
+	resetPassword(
+		@Body('token') token: string,
+		@Body() userRegisterDto: UserRegisterDto,
+	): Promise<object> {
+		return this.authService.resetPassword(token, userRegisterDto);
+	}
 }

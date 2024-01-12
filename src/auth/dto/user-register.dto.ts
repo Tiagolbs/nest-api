@@ -1,5 +1,6 @@
 import {
 	IsEmail,
+	IsOptional,
 	IsString,
 	Matches,
 	MaxLength,
@@ -8,6 +9,7 @@ import {
 import { Match } from '../decorator/match.decorator';
 
 export class UserRegisterDto {
+	@IsOptional()
 	@IsString()
 	@MinLength(4)
 	@Matches(/([a-zA-Z]+\s?\b){2,}/, {

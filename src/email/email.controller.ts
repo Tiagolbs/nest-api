@@ -16,4 +16,10 @@ export class EmailController {
 		const { email } = emailDto;
 		return this.emailService.sendConfirmationEmail(email);
 	}
+
+	@Post('/sendresetpasswordemail')
+	sendResetPasswordEmail(@Body() emailDto: EmailDto): Promise<object> {
+		const { email } = emailDto;
+		return this.emailService.sendResetPasswordEmail(email);
+	}
 }

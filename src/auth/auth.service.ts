@@ -1,5 +1,7 @@
 import {
 	ForbiddenException,
+	HttpException,
+	HttpStatus,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
@@ -46,5 +48,38 @@ export class AuthService {
 		}
 
 		throw new UnauthorizedException();
+	}
+
+	async resetPassword(
+		token: string,
+		userRegisterDto: UserRegisterDto,
+	): Promise<object> {
+		try {
+			// await this.jwtService.verify(token);
+			const decodedToken = await this.jwtService.decode(token);
+			const { email, action } = decodedToken;
+			const user = await this.usersRepository.findOneBy({ email });
+			if (user && action == 'resetPassword') {
+				await this.usersRepository.updateUser(user.id, userRegisterDto);
+				return {
+					statusCode: HttpStatus.OK,
+					message: 'Success',
+				};
+			} else {
+				throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+			}
+		} catch (error) {
+			if (error.name === 'TokenExpiredError') {
+				throw new HttpException(
+					'Confirmation token has expired',
+					HttpStatus.UNAUTHORIZED,
+				);
+			} else {
+				throw new HttpException(
+					error.name,
+					HttpStatus.INTERNAL_SERVER_ERROR,
+				);
+			}
+		}
 	}
 }
