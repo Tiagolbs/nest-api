@@ -17,6 +17,7 @@ export class UserRegisterDto {
 	})
 	name: string;
 
+	@IsOptional()
 	@IsEmail()
 	email: string;
 
