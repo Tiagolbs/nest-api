@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { mailerConfig } from './configs/mailer.config';
 import { EmailModule } from './email/email.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
 	imports: [
@@ -44,6 +45,7 @@ import { EmailModule } from './email/email.module';
 		}),
 		AuthModule,
 		EmailModule,
+		UsersModule,
 	],
 	controllers: [],
 	providers: [],

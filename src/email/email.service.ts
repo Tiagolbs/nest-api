@@ -107,5 +107,4 @@ export class EmailService {
 			throw new HttpException(error.message, error.status);
 		}
 	}
-
 }
