@@ -4,6 +4,8 @@ import { User } from 'src/auth/entity/user.entity';
 @Injectable()
 export class UsersService {
 	async getCurrentUser(user: User): Promise<object> {
-		return user;
+		const userWithoutPassword: User = { ...user };
+		delete userWithoutPassword.password;
+		return userWithoutPassword;
 	}
 }
