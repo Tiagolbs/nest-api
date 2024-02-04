@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { AuthModule } from 'src/auth/auth.module';
-import { UsersRepository } from 'src/auth/users.repository';
+import { UsersRepository } from 'src/users/users.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 

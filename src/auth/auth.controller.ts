@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserDto } from './dto/user.dto';
+import { UserUpdateDto } from 'src/users/dto/user-update.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,8 +24,8 @@ export class AuthController {
 	@Post('/resetpassword')
 	resetPassword(
 		@Body('token') token: string,
-		@Body() userRegisterDto: UserRegisterDto,
+		@Body() userUpdateDto: UserUpdateDto,
 	): Promise<object> {
-		return this.authService.resetPassword(token, userRegisterDto);
+		return this.authService.resetPassword(token, userUpdateDto);
 	}
 }

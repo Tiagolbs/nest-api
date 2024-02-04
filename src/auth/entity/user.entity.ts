@@ -12,7 +12,7 @@ export class User {
 	id: number;
 
 	@Column()
-	name: string;
+	username: string;
 
 	@Column()
 	password: string;
@@ -35,4 +35,7 @@ export class User {
 
 	@Column({ default: false })
 	isEmailConfirmed: boolean;
+
+	@Column({ nullable: true })
+	about: string;
 }

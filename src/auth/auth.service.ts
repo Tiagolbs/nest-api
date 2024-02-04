@@ -5,7 +5,7 @@ import {
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { UsersRepository } from './users.repository';
+import { UsersRepository } from '../users/users.repository';
 import { JwtService } from '@nestjs/jwt';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UserLoginDto } from './dto/user-login.dto';
@@ -13,6 +13,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { UserDto } from './dto/user.dto';
 import { EmailService } from 'src/email/email.service';
+import { UserUpdateDto } from 'src/users/dto/user-update.dto';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +43,8 @@ export class AuthService {
 			const userDto: UserDto = {
 				id: user.id,
 				email: user.email,
-				name: user.name,
+				username: user.username,
+				about: null,
 			};
 			return { accessToken, user: userDto };
 		}
@@ -52,7 +54,7 @@ export class AuthService {
 
 	async resetPassword(
 		token: string,
-		userRegisterDto: UserRegisterDto,
+		userUpdateDto: UserUpdateDto,
 	): Promise<object> {
 		try {
 			// await this.jwtService.verify(token);
@@ -60,7 +62,7 @@ export class AuthService {
 			const { email, action } = decodedToken;
 			const user = await this.usersRepository.findOneBy({ email });
 			if (user && action == 'resetPassword') {
-				await this.usersRepository.updateUser(user.id, userRegisterDto);
+				await this.usersRepository.updateUser(user.id, userUpdateDto);
 				return {
 					statusCode: HttpStatus.OK,
 					message: 'Success',

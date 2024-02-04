@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'src/auth/interface/jwt-payload.interface';
-import { UsersRepository } from 'src/auth/users.repository';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class EmailService {
